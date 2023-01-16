@@ -1,5 +1,5 @@
 # StockMarketApp
- Stock Market App using Jetpack Compose, MVVM-Clean Architecture
+ Stock Market App using Jetpack Compose, MVVM-Clean Architecture and supports Offline mode
 
 # Company Listings
 ![alt text](https://github.com/VivekSharma811/StockMarketApp/blob/master/demo/company_listings.jpeg?raw=true)
