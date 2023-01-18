@@ -35,48 +35,65 @@ fun CompanyInfoScreen(
                 .padding(16.dp)
         ) {
             state.company?.let { company ->
-                Text(
-                    text = company.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = company.symbol,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 14.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Divider(
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Industry: ${company.industry}",
-                    fontSize = 14.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Country: ${company.country}",
-                    fontSize = 14.sp,
-                    modifier = Modifier.fillMaxWidth(),
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Divider(
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = company.description,
-                    fontSize = 12.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                if (!company.isEmpty()) {
+                    company.name?.let {
+                        Text(
+                            text = company.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    company.symbol?.let {
+                        Text(
+                            text = company.symbol,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Divider(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    company.industry?.let {
+                        Text(
+                            text = "Industry: ${company.industry}",
+                            fontSize = 14.sp,
+                            modifier = Modifier.fillMaxWidth(),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    company.country?.let {
+                        Text(
+                            text = "Country: ${company.country}",
+                            fontSize = 14.sp,
+                            modifier = Modifier.fillMaxWidth(),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Divider(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    company.description?.let {
+                        Text(
+                            text = company.description,
+                            fontSize = 12.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    Text(
+                        text = "Uh oh, Failed to fetch data",
+                        color = MaterialTheme.colors.error
+                    )
+                }
                 if (state.stockInfos.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "Market Summary")
@@ -89,6 +106,11 @@ fun CompanyInfoScreen(
                             .align(CenterHorizontally)
                     )
                 }
+            } ?: run {
+                Text(
+                    text = "Uh oh, Failed to fetch data",
+                    color = MaterialTheme.colors.error
+                )
             }
         }
     }

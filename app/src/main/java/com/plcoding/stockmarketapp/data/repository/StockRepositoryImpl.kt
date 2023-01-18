@@ -3,6 +3,7 @@ package com.plcoding.stockmarketapp.data.repository
 import com.plcoding.stockmarketapp.data.csv.CSVParser
 import com.plcoding.stockmarketapp.data.local.StockDatabase
 import com.plcoding.stockmarketapp.data.mapper.toCompanyInfo
+import com.plcoding.stockmarketapp.data.mapper.toCompanyInfoEntity
 import com.plcoding.stockmarketapp.data.mapper.toCompanyListing
 import com.plcoding.stockmarketapp.data.mapper.toCompanyListingEntity
 import com.plcoding.stockmarketapp.data.remote.StockApi
@@ -83,16 +84,34 @@ class StockRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCompanyInfo(symbol: String): Resource<CompanyInfo> {
-        return try {
-            val result = api.getCompanyInfo(symbol)
-            Resource.Success(result.toCompanyInfo())
-        } catch (e: IOException) {
-            e.printStackTrace()
-            (Resource.Error("Couldn't load data"))
-        } catch (e: HttpException) {
-            e.printStackTrace()
-            (Resource.Error("Couldn't load data"))
+    override suspend fun getCompanyInfo(symbol: String): Flow<Resource<CompanyInfo>> {
+        return flow {
+            emit(Resource.Loading(true))
+
+            val localData = dao.getCompanyInfo(symbol)
+            if(localData != null) {
+                emit(Resource.Success(localData.toCompanyInfo()))
+                emit(Resource.Loading(false))
+            } else {
+                val remoteData = try {
+                    val result = api.getCompanyInfo(symbol)
+                    result.toCompanyInfo()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    emit(Resource.Error("Couldn't load data"))
+                    null
+                } catch (e: HttpException) {
+                    e.printStackTrace()
+                    emit(Resource.Error("Couldn't load data"))
+                    null
+                }
+
+                remoteData?.let { data ->
+                    dao.insertCompanyInfo(data.toCompanyInfoEntity())
+                    emit(Resource.Success(data))
+                }
+                emit(Resource.Loading(false))
+            }
         }
     }
 }

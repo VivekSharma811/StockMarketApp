@@ -19,6 +19,6 @@ interface StockRepository {
 
     suspend fun getCompanyInfo(
         symbol: String
-    ): Resource<CompanyInfo>
+    ): Flow<Resource<CompanyInfo>>
 
 }

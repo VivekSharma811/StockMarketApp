@@ -26,4 +26,15 @@ interface StockDao {
     )
     suspend fun searchCompanyListing(query: String): List<CompanyListingEntity>
 
+    @Insert(onConflict = REPLACE)
+    suspend fun insertCompanyInfo(companyInfoEntity: CompanyInfoEntity)
+
+    @Query("DELETE FROM companyinfoentity")
+    suspend fun clearAllCompanyInfo()
+
+    @Query("DELETE FROM companyinfoentity WHERE LOWER(symbol) LIKE LOWER(:symbol)")
+    suspend fun clearCompanyInfo(symbol: String)
+
+    @Query("SELECT * FROM companyinfoentity WHERE LOWER(symbol) LIKE LOWER(:symbol)")
+    suspend fun getCompanyInfo(symbol: String): CompanyInfoEntity?
 }

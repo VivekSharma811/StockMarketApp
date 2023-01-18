@@ -9,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.stockmarketapp.domain.repository.StockRepository
 import com.plcoding.stockmarketapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,20 +25,26 @@ class CompanyInfoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val symbol = savedStateHandle.get<String>("symbol") ?: return@launch
-            state = state.copy(isLoading = true)
+//            state = state.copy(isLoading = true)
 
-            val companyInfoResult = async { repository.getCompanyInfo(symbol) }
+            withContext(Dispatchers.IO) {
+                getCompanyInfo(
+                    symbol
+                )
+            }
+
+//            val companyInfoResult = async { repository.getCompanyInfo(symbol) }
             val intraDayInfoResult = async { repository.getIntradayInfo(symbol) }
 
-            when (val result = companyInfoResult.await()) {
-                is Resource.Success -> {
-                    state = state.copy(company = result.data, isLoading = false, error = null)
-                }
-                is Resource.Error -> {
-                    state = state.copy(isLoading = false, error = result.message, company = null)
-                }
-                else -> Unit
-            }
+//            when (val result = companyInfoResult.await()) {
+//                is Resource.Success -> {
+//                    state = state.copy(company = result.data, isLoading = false, error = null)
+//                }
+//                is Resource.Error -> {
+//                    state = state.copy(isLoading = false, error = result.message, company = null)
+//                }
+//                else -> Unit
+//            }
 
             when (val result = intraDayInfoResult.await()) {
                 is Resource.Success -> {
@@ -45,10 +53,27 @@ class CompanyInfoViewModel @Inject constructor(
                     )
                 }
                 is Resource.Error -> {
-                    state = state.copy(isLoading = false, error = result.message, company = null)
+//                    state = state.copy(isLoading = false, error = result.message, company = null)
                 }
                 else -> Unit
             }
+        }
+    }
+
+    private fun getCompanyInfo(symbol: String) {
+        viewModelScope.launch {
+            repository.getCompanyInfo(symbol)
+                .collect { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            state = state.copy(company = result.data, isLoading = false, error = null)
+                        }
+                        is Resource.Error -> {
+                            state = state.copy(isLoading = false, error = result.message, company = null)
+                        }
+                        else -> Unit
+                    }
+                }
         }
     }
 }
